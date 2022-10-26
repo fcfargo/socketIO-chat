@@ -1,0 +1,16 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.2/socket.io.js"></script>
+
+<script>
+  const socket = io("http://localhost:8005", { transports: ["websocket"] });
+  //   let ws = new WebSocket("ws://localhost:8005/websocket");
+  console.log(socket);
+
+  socket.on("connect", (data) => {
+    socket.on("welcome", (message) => {
+      console.log(message);
+    });
+    socket.emit("message", {
+      data: "I am so excited I am connected! It is like Christmas",
+    });
+  });
+</script>

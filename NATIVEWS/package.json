@@ -1,0 +1,14 @@
+{
+  "name": "nativews",
+  "version": "1.0.0",
+  "description": "",
+  "main": "justWsSever.js",
+  "scripts": {
+    "start": "nodemon justWsServer.js"
+  },
+  "author": "fcfargo",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.9.0"
+  }
+}
