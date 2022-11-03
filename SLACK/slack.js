@@ -16,19 +16,25 @@ const io = socketio(expressServer, {
   pingTimeOut: 5000,
 });
 
+// 클라이언트가 소켓 서버의 기본('/') 네임스페이스와 연결(connection)을 수립한 경우 실행할 callback 함수 정의
 io.on('connection', (socket) => {
-  socket.emit('messageFromServer', { data: 'Welcom to the socketio server' });
-
-  socket.on('messageToServer', (dataFromClient) => {
-    console.log(dataFromClient);
+  let namespaceData = namespaces.map((ns) => {
+    return {
+      img: ns.img,
+      endpoint: ns.endpoint,
+    };
   });
 
-  socket.join('level1');
-
-  io.of('/').to('level1').emit('joined', `${socket.id} says I have joined the level 1 room!`);
+  // 'nsList' 이벤트 데이터(클라이언트가 연결 가능한 네임스페이스 목록)를 소켓 연결이 완료된 클라이언트에게 전달
+  socket.emit('nsList', namespaceData);
 });
 
-io.of('/admin').on('connection', (socket) => {
-  console.log('Someone connected to the admin name');
-  io.of('/admin').emit('welcome', { data: 'welcome to the admin channel' });
+// 클라이언트가 소켓 서버의 특정 네임스페이스와 연결(connection)을 수립한 경우 실행할 callback 함수 정의
+namespaces.forEach((namespace) => {
+  io.of(namespace.endpoint).on('connection', (nsSocket) => {
+    console.log(`${nsSocket.id} has join ${namespace.endpoint}`);
+
+    // 'nsRoomLoad' 이벤트 데이터(wiki 네임스페이스에 소속된 룸 목록)를 소켓 연결이 완료된 클라이언트에게 전달
+    nsSocket.emit('nsRoomLoad', namespaces[0].rooms);
+  });
 });

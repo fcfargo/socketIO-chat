@@ -4,11 +4,11 @@ class Namespace {
     this.img = img;
     this.nsTitle = nsTitle;
     this.endpoint = endpoint;
-    this.room = [];
+    this.rooms = [];
   }
 
   addRoom(roomObj) {
-    this.room.push(roomObj);
+    this.rooms.push(roomObj);
   }
 }
 
