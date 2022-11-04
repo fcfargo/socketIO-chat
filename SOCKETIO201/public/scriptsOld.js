@@ -1,6 +1,7 @@
 const socket = io('http://localhost:8005', { transports: ['websocket'] });
 const socketAdmin = io('http://localhost:8005/admin', { transports: ['websocket'] });
 
+//  클라이언트가 소켓 서버의 기본('/') 네임스페이스와 연결(connection)을 수립한 경우 실행할 callback 함수 정의
 socket.on('connect', () => {
   console.log(socket.id);
 });
