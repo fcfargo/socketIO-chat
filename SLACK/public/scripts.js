@@ -1,5 +1,6 @@
-// 클라이언트가 소켓 서버의 기본('/') 네임스페이스와 연결(connection)을 요청
+// 클라이언트가 소켓 서버의 기본('/') 네임스페이스와 연결(connection) 요청
 const socket = io('http://localhost:8005', { transports: ['websocket'] });
+let nsSocket = '';
 
 // 소켓 서버에서 전송한 nsList 이벤트 데이터에 대한 listener
 socket.on('nsList', (nsData) => {
@@ -21,6 +22,6 @@ socket.on('nsList', (nsData) => {
     });
   });
 
-  // joinNs() 실행
+  // 클라이언트가 소켓 서버의 endpoint 네임스페이스와 연결(connection) 요청
   joinNs('/wiki');
 });
