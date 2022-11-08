@@ -5,4 +5,24 @@ function joinRoom(roomName) {
     // 소켓 서버 네임스페이스 소속 room과 연결된 클라이언트 개수 업데이트
     document.querySelector('.curr-room-num-users').innerHTML = `${newNumberOfMembers} <span class="glyphicon glyphicon-user"></span>`;
   });
+
+  // 소켓 서버에서 전송한 historyCatchUp 이벤트 데이터에 대한 listener
+  nsSocket.on('historyCatchUp', (history) => {
+    const messagesUl = document.querySelector('#messages');
+    messagesUl.innerHTML = '';
+    history.forEach((msg) => {
+      const newMsg = buildHTML(msg);
+      const currentMessages = messagesUl.innerHTML;
+      messagesUl.innerHTML = currentMessages + newMsg;
+    });
+    // window.scrollTo(x-좌표, y-좌표): 문서의 지정된 위치로 스크롤
+    messagesUl.scrollTo(0, messagesUl.scrollHeight);
+  });
+
+  // 소켓 서버에서 전송한 updateMembers 이벤트 데이터에 대한 listener
+  nsSocket.on('updateMembers', (numMembers) => {
+    console.log(numMembers);
+    document.querySelector('.curr-room-num-users').innerHTML = `${numMembers} <span class="glyphicon glyphicon-user"></span>`;
+    document.querySelector('.curr-room-text').innerText = `${roomName}`;
+  });
 }
