@@ -17,11 +17,9 @@ socket.on('nsList', (nsData) => {
   Array.from(document.getElementsByClassName('namespace')).forEach((elem) => {
     elem.addEventListener('click', (e) => {
       const nsEndpoint = elem.getAttribute('ns');
-      // joinNs(nsEndpoint);
+      // 클릭한 <div> 태그의 namespace 정보에 해당하는 소켓 서버의 endpoint 네임스페이스와 연결(connection) 요청
+      joinNs(nsEndpoint);
       console.log(`${nsEndpoint} I should go to now`);
     });
   });
-
-  // 클라이언트가 소켓 서버의 endpoint 네임스페이스와 연결(connection) 요청
-  joinNs('/wiki');
 });

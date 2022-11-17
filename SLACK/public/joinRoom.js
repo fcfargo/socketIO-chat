@@ -21,8 +21,21 @@ function joinRoom(roomName) {
 
   // 소켓 서버에서 전송한 updateMembers 이벤트 데이터에 대한 listener
   nsSocket.on('updateMembers', (numMembers) => {
-    console.log(numMembers);
     document.querySelector('.curr-room-num-users').innerHTML = `${numMembers} <span class="glyphicon glyphicon-user"></span>`;
     document.querySelector('.curr-room-text').innerText = `${roomName}`;
+  });
+
+  // 룸 searchBox 이벤트 리스너 추가
+  let searchBox = document.querySelector('#search-box');
+  searchBox.addEventListener('input', (e) => {
+    let messages = Array.from(document.getElementsByClassName('message-text'));
+    messages.forEach((msg) => {
+      // searchBox 입력 문자열과 일치하는 채팅 메시지가 없는 경우
+      if (msg.innerText.toLowerCase().indexOf(e.target.value.toLowerCase()) === -1) {
+        msg.style.display = 'none';
+      } else {
+        msg.style.display = 'block';
+      }
+    });
   });
 }
