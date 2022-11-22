@@ -1,5 +1,8 @@
+const username = prompt('What is your username?');
 // 클라이언트가 소켓 서버의 기본('/') 네임스페이스와 연결(connection) 요청
-const socket = io('http://localhost:8005', { transports: ['websocket'] });
+// query: 클라언트가 연결려는 소켓 서버에 파라미터 값을 전달할 수 있다.(한마디로 소켓 서버와 데이터 주고 받는 일이 가능하다.)
+// 서버(server-side)에선 해당 파라미터 값을 'socket.handshake.query'로 접근 가능하다.
+const socket = io('http://localhost:8005', { query: { username }, transports: ['websocket'] });
 let nsSocket = '';
 
 // 소켓 서버에서 전송한 nsList 이벤트 데이터에 대한 listener

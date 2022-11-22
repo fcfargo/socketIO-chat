@@ -32,6 +32,9 @@ io.on('connection', (socket) => {
 // 클라이언트가 소켓 서버의 특정 네임스페이스와 연결(connection)을 수립한 경우 실행할 callback 함수 정의
 namespaces.forEach((namespace) => {
   io.of(namespace.endpoint).on('connection', (nsSocket) => {
+    // 기본('/') 네임스페이스로 전달된 query 값을 다른 네임스페이스에서 사용 가능한 이유??
+    // 답변: 웹소켓 연결이 이뤄지기 전, HTTP 요청의 도움을 받아 초기 연결과 handshake 과정이 한 번만 진행되기 때문이다. 웹소켓 연결 이후 이러한 과정은 더이상 반복되지 않는다.
+    const username = nsSocket.handshake.query.username;
     // console.log(`${nsSocket.id} has join ${namespace.endpoint}`);
 
     // 'nsRoomLoad' 이벤트 데이터(네임스페이스에 소속된 룸 목록)를 소켓 연결이 완료된 클라이언트에게 전달
@@ -71,7 +74,7 @@ namespaces.forEach((namespace) => {
       const fullMsg = {
         text: msg.text,
         time: Date.now(),
-        username: 'yhkim',
+        username: username,
         avatar: 'https://via.placeholder.com/30',
       };
 
