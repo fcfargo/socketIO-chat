@@ -88,7 +88,6 @@ if (cluster.isPrimary) {
   // 포트 번호 0: 외부에서 연결(connection) 불가능한 express server 생성
   // If port is omitted or is 0, the operating system will assign an arbitrary unused port, which is useful for cases like automated tasks (tests, etc.).
   const httpServer = createServer(app);
-  httpServer.listen(0, 'localhost');
 
   // socket.io를 생성된 express server와 연결
   const io = new Server(httpServer);
@@ -103,7 +102,10 @@ if (cluster.isPrimary) {
   const pubClient = createClient({ url: 'redis://localhost:6379' });
   const subClient = pubClient.duplicate();
 
-  io.adapter(createAdapter(pubClient, subClient));
+  Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+    io.adapter(createAdapter(pubClient, subClient));
+    httpServer.listen(0, 'localhost');
+  });
 
   // Here you might use Socket.IO middleware for authorization etc.
   // on connection, send the socket over to our module with socket stuff
