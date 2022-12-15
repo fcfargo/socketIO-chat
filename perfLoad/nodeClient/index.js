@@ -4,6 +4,11 @@
 // CPU IDLE: CPU가 모든 일을 끝낸 뒤 쉬는 시간을 의미. CPU LOAD와 다음과 같은 상관관계를 가진다.  Load% + Idle% = 100%
 
 const os = require('os');
+const { io } = require('socket.io-client');
+let socket = io('http://localhost:8005');
+socket.on('connect', () => {
+  console.log('I connected to the socket server...');
+});
 
 function performanceData() {
   return new Promise(async (resolve, reject) => {

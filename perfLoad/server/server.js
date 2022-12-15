@@ -9,9 +9,10 @@
 //See https://github.com/elad/node-cluster-socket.io
 
 const express = require('express');
+const { createServer } = require('http');
 const cluster = require('cluster');
 const net = require('net');
-const socketio = require('socket.io');
+const { Server } = require('socket.io');
 // const helmet = require('helmet')
 const socketMain = require('./socketMain');
 // const expressMain = require('./expressMain');
@@ -68,7 +69,8 @@ if (cluster.isPrimary) {
     /** 클라이언트 요청을 처리해줄 worker 정보를 가져오는(grab) 함수 */
     let worker = workers[worker_index(connection.remoteAddress, num_processes)];
     // connection 객체는 net.Socket Class 객체로  TCP socket 또는 streaming IPC 추상화한 것이다.
-    // 클라이언트 요청을 처리해줄 worker(child 프로세스)로 'sticky-session:connection' 이벤트 데이터(connection 객체) 전송
+    // 클라이언트 요청을 처리해줄 worker(child 프로세스)로 메시지 전송
+    // worker.send(message[, sendHandle[, options]][, callback])
     worker.send('sticky-session:connection', connection);
   });
   // net 모듈을 활용하여 TCP 프록시(proxy) 서버 생성. 프록시 서버는 workers 와 클라이언트를 중계하는 역할을 한다.
@@ -84,10 +86,12 @@ if (cluster.isPrimary) {
 
   // Don't expose our internal server to the outside world.
   // 포트 번호 0: 외부에서 연결(connection) 불가능한 express server 생성
-  const server = app.listen(0, 'localhost');
-  // console.log("Worker listening...");
+  // If port is omitted or is 0, the operating system will assign an arbitrary unused port, which is useful for cases like automated tasks (tests, etc.).
+  const httpServer = createServer(app);
+  httpServer.listen(0, 'localhost');
+
   // socket.io를 생성된 express server와 연결
-  const io = socketio(server);
+  const io = new Server(httpServer);
 
   // 어댑터(adatoer): socket.io 서버에서 사용된다. 역할은 크게 두 가지다.
   // 기본 제공되는 in-memory 어댑터를 사용해도 되고, redis를 어댑터로 사용할 수도 있다.
@@ -104,6 +108,8 @@ if (cluster.isPrimary) {
   // Here you might use Socket.IO middleware for authorization etc.
   // on connection, send the socket over to our module with socket stuff
   // 클라이언트가 socket.io 서버의 기본('/') 네임스페이스와 연결(connection)되면, socketMain() 실행.
+  // socket: 클라이언트로 사용 가능한 Class 객체
+  // 참고: https://socket.io/docs/v4/server-socket-instance/
   io.on('connection', function (socket) {
     socketMain(io, socket);
     console.log(`connected to worker: ${cluster.worker.id}`);
@@ -119,9 +125,15 @@ if (cluster.isPrimary) {
 
     // Emulate a connection event on the server by emitting the
     // event with the connection the master sent us.
-    // worker(child 프로세스)에서 master 프로세스로 'connection' 이벤트 데이터 전송
-    server.emit('connection', connection);
+    // worker(child 프로세스)로 하여금 클라이언트와 서버의 연결을 직접 수립한 것처럼 해준다. = worker에서 'connection' 이벤트가 발생한 것처럼 해준다.
+    // createServer가 반환한 Server객체는 EventEmitter class 객체에 해당하는데, 'emit' 메서드를 사용하여 'connection' 이벤트를 발생시켰다.
+    // EventEmitter class 객체에서 'connection' 이벤트가 발생(emit)하면, eventEmitter.on() 메서드로 정의된 이벤트 리스너의 callback 함수가 실행된다.
+    httpServer.emit('connection', connection);
 
+    // connection.resume() = new net.Socket().resume()
+    // net.Socket():  TCP socket 또는 streaming IPC를 추상화한 것이다. 클라이언트로 사용 가능하다.
+    // new net.Socket().resume(): .pause() 호출한 후 다시 데이터를 읽는다.
+    // new net.Socket().pause(): 데이터 읽기를 중단한다. 즉, 'data' 이벤트가 발생하지 않는다.
     connection.resume();
   });
 }

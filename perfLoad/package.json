@@ -13,6 +13,7 @@
     "express": "^4.18.2",
     "farmhash": "^3.2.2",
     "redis": "^4.5.1",
-    "socket.io": "^4.5.4"
+    "socket.io": "^4.5.4",
+    "socket.io-client": "^4.5.4"
   }
 }

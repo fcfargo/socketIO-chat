@@ -17,7 +17,7 @@ wss.on('headers', (headers, req) => {
 // 전달받은 데이터는 두 가지다.
 //  1. websocket
 //  2. request
-// websocket 객체는 WebSocket Class 객체. 'message' 이벤트 데이터 등 클라이언트 관련 데이터에 접근 가능
+// websocket 객체는 WebSocket Class 객체. 'message' 이벤트 데이터 등에 접근하는 등 클라이언트로 사용 가능
 wss.on('connection', (ws, req) => {
   ws.send('Welcome to the websocket');
 
