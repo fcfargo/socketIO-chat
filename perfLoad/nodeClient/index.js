@@ -5,21 +5,8 @@
 
 const os = require('os');
 const { io } = require('socket.io-client');
-const { default: mongoose } = require('mongoose');
 
 let socket = io('http://localhost:8005');
-
-mongoose
-  .set('strictQuery', true)
-  .connect('mongodb://root:gns7201ok!@localhost:27017/socketio_perfLoad?authMechanism=DEFAULT&authSource=admin')
-  .then(() => {
-    mongoose.connection.on('error', (err) => {
-      console.error(err);
-    });
-  })
-  .catch((err) => {
-    console.error(err);
-  });
 
 socket.on('connect', async () => {
   const ni = os.networkInterfaces();

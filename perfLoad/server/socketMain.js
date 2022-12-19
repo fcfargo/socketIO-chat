@@ -1,3 +1,18 @@
+const { Machines } = require('../mongo_models/machines');
+const { default: mongoose } = require('mongoose');
+
+mongoose
+  .set('strictQuery', true)
+  .connect('mongodb://root:gns7201ok!@localhost:27017/socketio_perfLoad?authMechanism=DEFAULT&authSource=admin')
+  .then(() => {
+    mongoose.connection.on('error', (err) => {
+      console.error(err);
+    });
+  })
+  .catch((err) => {
+    console.error(err);
+  });
+
 function socketMain(io, socket) {
   console.log('A socket connected!', socket.id);
   let macA;
@@ -22,9 +37,10 @@ function socketMain(io, socket) {
     socket.disconnect(true);
   });
 
-  socket.on('initPerfData', (data) => {
+  socket.on('initPerfData', async (data) => {
     macA = data.macA;
-    console.log(data);
+    const machine = await checkAndAdd(data);
+    console.log(machine);
   });
 
   socket.on('perfData', (data) => {
@@ -32,4 +48,12 @@ function socketMain(io, socket) {
   });
 }
 
+/** perfData 확인 후, DB에 존재하지 않을 경우 Machines 데이터 Create */
+async function checkAndAdd(data) {
+  let machine = await Machines.findOne({ macA: data.macA });
+  if (machine == null) {
+    machine = await Machines(data).save();
+  }
+  return machine;
+}
 module.exports = socketMain;
