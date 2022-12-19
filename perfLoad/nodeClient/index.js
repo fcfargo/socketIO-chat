@@ -5,26 +5,46 @@
 
 const os = require('os');
 const { io } = require('socket.io-client');
+const { default: mongoose } = require('mongoose');
+
 let socket = io('http://localhost:8005');
+
+mongoose
+  .set('strictQuery', true)
+  .connect('mongodb://root:gns7201ok!@localhost:27017/socketio_perfLoad?authMechanism=DEFAULT&authSource=admin')
+  .then(() => {
+    mongoose.connection.on('error', (err) => {
+      console.error(err);
+    });
+  })
+  .catch((err) => {
+    console.error(err);
+  });
+
 socket.on('connect', async () => {
   const ni = os.networkInterfaces();
   /** mac 주소 */
-  let mackAddr;
+  let macAddr;
   // 동일 IP 주소를 사용하는 클라이언트 machine 개수가 여러 개일 경우, 각각의 machine을 MAC 주소를 통해 구별해줘야 한다.
   // MAC 주소는 데이터 링크 계층 통신을 위한 하드웨어 고유 식별자이다.
   for (const key in ni) {
     ni[key].some((obj) => {
       if (!obj.internal && obj.family === 'IPv4') {
-        mackAddr = obj.mac;
+        macAddr = obj.mac;
         return true;
       }
     });
 
-    if (mackAddr != null) break;
+    if (macAddr != null) break;
   }
 
+  performanceData().then((allPerformaceData) => {
+    allPerformaceData.macA = macAddr;
+    socket.emit('initPerfData', allPerformaceData);
+  });
+
   // 소켓 서버에 'clientAuth' 이벤트 발생
-  socket.emit('clientAuth', '1q2w3e4r');
+  socket.emit('clientAuth', 'af78daf6f78a6f876f');
 
   // 1초 간격으로 소켓 서버에 'perfData' 이벤트 발생(performanceData() 이벤트 데이터 전송)
   let perfDataInterval = setInterval(() => {
@@ -32,6 +52,14 @@ socket.on('connect', async () => {
       socket.emit('perfData', allPerformaceData);
     });
   }, 1000);
+
+  // 클라이언트가 소켓 서버와 연결 해재 시, 실행 중이었던 setInterval() 중지
+  // setInterval() 중복 실행을 막기 위해 필요
+  socket.on('disconnect', () => {
+    // clearInterval(intervalID)
+    // intervalID: This ID was returned by the corresponding call to setInterval().
+    clearInterval(perfDataInterval);
+  });
 });
 
 function performanceData() {
