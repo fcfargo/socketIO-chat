@@ -44,7 +44,7 @@ function socketMain(io, socket) {
   });
 
   socket.on('perfData', (data) => {
-    console.log(data);
+    io.to('uiClients').emit('data', data);
   });
 }
 

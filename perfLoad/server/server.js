@@ -90,7 +90,11 @@ if (cluster.isPrimary) {
   const httpServer = createServer(app);
 
   // socket.io를 생성된 express server와 연결
-  const io = new Server(httpServer);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: 'http://localhost:3000',
+    },
+  });
 
   // 어댑터(adatoer): socket.io 서버에서 사용된다. 역할은 크게 두 가지다.
   // 기본 제공되는 in-memory 어댑터를 사용해도 되고, redis를 어댑터로 사용할 수도 있다.
