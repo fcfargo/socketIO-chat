@@ -5,12 +5,14 @@ import Widget from './Widget';
 
 // function component
 function App() {
+  // useState hook
   /** state(performanceData) 변수*/
   const [state, setState] = useState({});
 
   /** 전체 nodeClient의 Widget componet 저장된 배열 */
   let widgets = [];
 
+  // useEffect hook
   useEffect(() => {
     const currentState = {};
     // 소켓 서버에서 발생시킨 'data' 이벤트 처리 listener
