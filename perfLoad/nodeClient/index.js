@@ -36,6 +36,7 @@ socket.on('connect', async () => {
   // 1초 간격으로 소켓 서버에 'perfData' 이벤트 발생(performanceData() 이벤트 데이터 전송)
   let perfDataInterval = setInterval(() => {
     performanceData().then((allPerformaceData) => {
+      allPerformaceData.macA = macAddr;
       socket.emit('perfData', allPerformaceData);
     });
   }, 1000);
@@ -60,9 +61,10 @@ function performanceData() {
 
     // - total
     const totalMem = os.totalmem();
+    const usedMem = totalMem - freeMem;
 
     // - memory useage
-    const memUseage = Math.floor(((totalMem - freeMem) / totalMem) * 100) / 100;
+    const memUseage = Math.floor((usedMem / totalMem) * 100) / 100;
 
     // OS type
     const osType = os.type().toLowerCase().includes('darwin') ? 'Mac' : os.type();
@@ -84,6 +86,7 @@ function performanceData() {
       freeMem,
       totalMem,
       memUseage,
+      usedMem,
       osType,
       upTime,
       cpuType,
