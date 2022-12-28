@@ -6,7 +6,7 @@
 
 // entrypoint(server.js) 프로그램 실행 시 전체 workers가 생성된다.
 // 생성된 workers는 소켓 서버로서 클라이언트의 요청을 처리한다.
-//See https://github.com/elad/node-cluster-socket.io
+// See https://github.com/elad/node-cluster-socket.io
 
 const express = require('express');
 const { createServer } = require('http');

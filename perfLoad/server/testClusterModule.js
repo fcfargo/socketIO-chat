@@ -21,7 +21,7 @@ if (cluster.isPrimary) {
   // Fork workers.
   for (let i = 0; i < numCPUs; i++) {
     // 최초 실행 된 프로그램의 전체 workers 생성된다. 프로그램(master)과 동일한 프로그램 반복 실행되는 것이다.
-    // 최오 실행 이후 실행된 프로그램들은 else 구문에서 처리된다.
+    // 최초 실행 이후 실행된 프로그램들은 else 구문에서 처리된다.
     cluster.fork();
   }
 
